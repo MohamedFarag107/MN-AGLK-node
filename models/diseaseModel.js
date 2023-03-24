@@ -22,7 +22,6 @@ const diseaseSchema = new mongoose.Schema(
     }
 );
 
-
 const DiseaseModel = mongoose.model('Disease', diseaseSchema);
 
 module.exports = DiseaseModel;

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
-const userSchema = new mongoose.Schema(
+const doctorSchema = new mongoose.Schema(
     {
         name:{
             type: String,
@@ -28,31 +28,43 @@ const userSchema = new mongoose.Schema(
             required: [true, 'Password Required'],
             minlength: [6, 'Too Short Password'],
         },
-        passwordChangedAt: Date,
-        passwordResetCode: String,
-        passwordResetExpires: Date,
-        passwordResetVerified: Boolean,
         role: {
             type: String,
-            enum: ['admin', 'patient'],
-            default: 'patient',
+            default: 'doctor',
         },
         address:{
             type: String,
         },
-        reservations:[
-            {
-                type: mongoose.Schema.ObjectId,
-                ref: 'Reservation'
-            }
-        ]
+        ratings: {
+            type: Number,
+            min: [1, 'Rating Must Be Above Or Equal 1.0'],
+            max: [5, 'Rating Must Be Below Or Equal 5.0'],
+        },
+        price: {
+            type: Number,
+        },
+        specialty:{
+            type: String,
+        },
+        specializedIn:{
+            type: String,
+        },
+        Certificate:[String],
+        Experience:{
+            type: String,
+        },
+        passwordChangedAt: Date,
+        passwordResetCode: String,
+        passwordResetExpires: Date,
+        passwordResetVerified: Boolean,
+
     },
     {
         timestamps: true
     }
 );
 
-userSchema.pre('save', async function (next){
+doctorSchema.pre('save', async function (next){
     if(!this.isModified('password')) return next();
 
     //Hashing User Password
@@ -63,7 +75,6 @@ userSchema.pre('save', async function (next){
 
 
 
+const DoctorModel = mongoose.model('Doctor', doctorSchema);
 
-const UserModel = mongoose.model('User', userSchema);
-
-module.exports = UserModel;
+module.exports = DoctorModel;

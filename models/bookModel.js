@@ -2,10 +2,15 @@ const mongoose = require('mongoose');
 
 const bookSchema = new mongoose.Schema(
     {
-        name:{
+        title:{
             type: String,
             trim: true,
-            required: [true, 'Name Required'],
+            required: [true, 'title Required'],
+        },
+        author:{
+            type: String,
+            trim: true,
+            required: [true, 'author Required'],
         },
         slug: {
             type: String,
@@ -15,13 +20,14 @@ const bookSchema = new mongoose.Schema(
             type: String,
             required: [true, 'Description Required'],
         },
-        profileImage: String,
+        bookImage: String,
         bookFile: String,
     },
     {
         timestamps: true
     }
 );
+
 
 
 const BookModel = mongoose.model('Book', bookSchema);
