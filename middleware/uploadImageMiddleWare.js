@@ -4,25 +4,13 @@ const ApiError = require('../utils/apiError');
 
 
 const multerObject = ()=>{
-    // Disk Storage
-    // const multerStorage = multer.diskStorage({
-    //     destination: function(req,file, cb){
-    //         cb(null, 'uploads/categories');
-    //     },
-    //     filename: function(req, file, cb){
-    //         const ext = file.mimetype.split('/')[1];
-    //         const fiName = `category-${uuidv4()}-${Date.now()}.${ext}`;
-    //         cb(null, fiName);
-    //     },
-    // });
-
-
     const multerStorage = multer.memoryStorage();
 
     const multerFilter = function(req,file,cb){
         if(file.mimetype.startsWith('image')){
             cb(null, true);
-        }else{
+        }
+        else{
             cb(new ApiError("Only Images Allowed", 400), false);
         }
     }
@@ -37,5 +25,24 @@ exports.uploadSingleImage = (fieldName)=>
     multerObject().single(fieldName);
 
 
-exports.uploadMixOfImages = (arrayOfFields) =>
-    multerObject().fields(arrayOfFields);
+// exports.uploadMixOfImages = (arrayOfFields) =>
+//     multerObject().fields(arrayOfFields);
+
+
+
+// const storage = multer.diskStorage({destination: function (req, file, cb) {
+//         if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+//             cb(null, 'uploads/BooksImage/')
+//         } else if (file.mimetype === 'application/pdf') {
+//             cb(null, 'uploads/BooksFile/')
+//         } else {
+//             cb({ message: 'Unsupported file format' }, false);
+//         }
+//     },
+//     filename: function (req, file, cb) {
+//         cb(null, file.originalname)
+//     }
+// });
+
+// const upload = multer({ storage: storage });
+// exports.uploadSingleImage = (fieldName)=>  upload.single(fieldName);

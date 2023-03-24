@@ -8,44 +8,45 @@ const userSchema = new mongoose.Schema(
             trim: true,
             required: [true, 'Name Required'],
         },
-        slug: {
-            type: String,
-            lowercase: true,
-        },
         email: {
             type: String,
             required: [true, 'Email Required'],
             unique: true,
             lowercase: true,
         },
-        phone:{
-            type: String,
-            required: [true, 'Phone Required'],
-        } ,
-        profileImage: String,
         password: {
             type: String,
             required: [true, 'Password Required'],
             minlength: [6, 'Too Short Password'],
         },
+        type: {
+            type: String,
+            enum: ['admin', 'patient','therapist'],
+            default: 'patient',
+        },
+        profileImage: String,
+        reservations:[
+            {
+                type: mongoose.Schema.ObjectId,
+                ref: 'Reservation',
+            }
+        ],
+        numberOfReservations: {
+            type: Number,
+        },
+        price:{
+            type: Number,
+        },
+        rating:{
+            type: Number,
+        },
+        // id, id, date
+        //Password Reset Fields
         passwordChangedAt: Date,
         passwordResetCode: String,
         passwordResetExpires: Date,
         passwordResetVerified: Boolean,
-        role: {
-            type: String,
-            enum: ['admin', 'patient'],
-            default: 'patient',
-        },
-        address:{
-            type: String,
-        },
-        reservations:[
-            {
-                type: mongoose.Schema.ObjectId,
-                ref: 'Reservation'
-            }
-        ]
+
     },
     {
         timestamps: true

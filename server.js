@@ -9,8 +9,11 @@ const ApiError = require("./utils/apiError");
 const globalErrorMiddleWare = require('./middleware/errorMiddleWare');
 
 // -------------------- Routes ---------------------
-const doctorAuthRoutes = require('./routes/doctorAuthRoutes');
-const userAuthRoutes = require('./routes/userAuthRoutes');
+const AuthRoutes = require('./routes/AuthRoutes');
+const DiseaseRoutes = require('./routes/DiseaseRoutes');
+const BookServices = require('./routes/BookServices');
+const UserRoutes = require('./routes/UserRoutes');
+const ReservationRoutes = require('./routes/ReservationRoutes');
 
 
 // express app
@@ -31,8 +34,12 @@ if(process.env.NODE_ENV === "development"){
 }
 
 // Mount Routes
-app.use("/api/v1/doctorAuths", doctorAuthRoutes);
-app.use("/api/v1/userAuths", userAuthRoutes);
+app.use("/api/v1/Auths", AuthRoutes);
+app.use("/api/v1/diseases", DiseaseRoutes);
+app.use("/api/v1/books", BookServices);
+app.use("/api/v1/users", UserRoutes);
+app.use("/api/v1/reservations", ReservationRoutes);
+
 
 
 

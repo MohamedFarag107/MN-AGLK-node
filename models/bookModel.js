@@ -12,10 +12,6 @@ const bookSchema = new mongoose.Schema(
             trim: true,
             required: [true, 'author Required'],
         },
-        slug: {
-            type: String,
-            lowercase: true,
-        },
         description: {
             type: String,
             required: [true, 'Description Required'],

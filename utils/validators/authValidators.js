@@ -3,7 +3,6 @@ const { default: slugify } = require('slugify');
 
 const validatorMiddleWare = require('../../middleware/validatorMiddleWare');
 const userModel = require('../../models/userModel');
-const doctorModel = require('../../models/doctorModel');
 
 
 
@@ -18,11 +17,6 @@ exports.signupValidator = [
         .withMessage('Too Short User Name')
         .isLength({max: 32})
         .withMessage('Too Long User Name'),
-    body('name')
-        .custom((val, {req})=>{
-            req.body.slug = slugify(val);
-            return true;
-        }),
 
     check('email')
     .notEmpty()
@@ -32,14 +26,7 @@ exports.signupValidator = [
     .custom((val) =>
         userModel.findOne({ email: val }).then((user) => {
             if (user) {
-                return Promise.reject(new Error('E-mail already Exist IN Paitent'));
-            }
-        })
-    )
-    .custom((val) =>
-        doctorModel.findOne({ email: val }).then((doctor) => {
-            if (doctor) {
-                return Promise.reject(new Error('E-mail already Exist IN Doctor'));
+                return Promise.reject(new Error('E-mail already Exist'));
             }
         })
     ),

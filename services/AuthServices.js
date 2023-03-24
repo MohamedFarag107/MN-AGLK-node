@@ -10,15 +10,52 @@ const sendEmail = require('../utils/sendEmail');
 const createToken = require('../utils/createToken');
 
 
+
+// @desc     Make Sure That The User Logging Or Not 
+exports.protect = asyncHandler(async(req, res, next) => {
+    // 1) check if token exist, if exist get it
+    let token;
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+        token = req.headers.authorization.split(' ')[1];
+    }
+
+    if (!token) {
+        return next(new ApiError('You Are Not Login, Please Login To Access This Route', 401));
+    }
+
+    // 2) Verify Token (No Change Happens, or Expired Token)
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+
+
+    // 3) check if user exist
+    const currentUser = await userModel.findById(decoded.userId);
+    if (!currentUser) {
+        return next(new ApiError('The User Not Found', 401));
+    };
+
+    // 4) check if user change his password after token created
+    if (currentUser.passwordChangedAt) {
+        const passwordChangedTimeStamp = parseInt(currentUser.passwordChangedAt.getTime() / 1000, 10);
+        // User Change Password After Token
+        if (passwordChangedTimeStamp > decoded.iat) {
+            return next(new ApiError('User Recently Changed His Password, Please Login Again...', 401));
+        }
+    }
+
+    console.log('.......................................');
+    req.user = currentUser;
+    next();
+});
+
+
 // @desc     SING UP
-// @route    POST   /api/v1/userAuths/userSignUp
+// @route    POST   /api/v1/Auths/signup
 // @access   Public
-exports.userSingup = asyncHandler(async (req,res,next)=>{
+exports.Singup = asyncHandler(async (req,res,next)=>{
     // 1) Create User
     const user = await userModel.create({
         name: req.body.name,
         email: req.body.email,
-        phone: req.body.phone,
         password: req.body.password,
     });
 
@@ -31,9 +68,9 @@ exports.userSingup = asyncHandler(async (req,res,next)=>{
 
 
 // @desc     LOG IN
-// @route    POST   /api/v1/userAuths/userLogin
+// @route    POST   /api/v1/Auths/login
 // @access   Public
-exports.userLogin = asyncHandler(async (req, res, next)=>{
+exports.Login = asyncHandler(async (req, res, next)=>{
     // 1) check if password and email in the body
     // 2) check if user exist and password is correct
     const user = await userModel.findOne({email: req.body.email});
@@ -52,9 +89,9 @@ exports.userLogin = asyncHandler(async (req, res, next)=>{
 
 
 // @desc    Forgot password
-// @route   POST /api/v1/userAuths/userForgetPassword
+// @route   POST /api/v1/Auths/forgetPassword
 // @access  Public
-exports.userForgetPassword = asyncHandler(async (req, res, next)=>{
+exports.ForgetPassword = asyncHandler(async (req, res, next)=>{
     // 1) Get User By Email
     const user = await userModel.findOne({email: req.body.email});
     if(!user){
@@ -102,9 +139,9 @@ exports.userForgetPassword = asyncHandler(async (req, res, next)=>{
 
 
 // @desc    Verify Reset Code password
-// @route   POST /api/v1/userAuths/userVerifyResetCode
+// @route   POST /api/v1/Auths/verifyResetCode
 // @access  Public
-exports.userVerifyPasswordResetCode = asyncHandler(async (req, res, next)=>{
+exports.VerifyPasswordResetCode = asyncHandler(async (req, res, next)=>{
     // 1) Get User Based On Reset Code
     const hashedResetCode = crypto
         .createHash('sha256')
@@ -130,9 +167,9 @@ exports.userVerifyPasswordResetCode = asyncHandler(async (req, res, next)=>{
 
 
 // @desc    Reset Code
-// @route   POST /api/v1/userAuths/userResetPassword
+// @route   POST /api/v1/Auths/resetPassword
 // @access  Public
-exports.userResetCode = asyncHandler(async (req,res,next)=>{
+exports.ResetCode = asyncHandler(async (req,res,next)=>{
     // 1) Get User Based On Email
     const user = await userModel.findOne({ email: req.body.email});
 

@@ -7,11 +7,7 @@ const diseaseSchema = new mongoose.Schema(
             trim: true,
             required: [true, 'Name Required'],
         },
-        slug: {
-            type: String,
-            lowercase: true,
-        },
-        Symptoms:[
+        symptoms:[
             {
                 type: String,
             }
