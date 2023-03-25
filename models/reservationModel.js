@@ -2,12 +2,12 @@ const mongoose = require('mongoose');
 
 const ReservationSchema = new mongoose.Schema(
     {
-        therapist:{
+        therapistId:{
             type: mongoose.Schema.ObjectId,
             ref: 'User',
             required: [true, 'Please Provide Therapist Id']
         },
-        patient:{
+        patientId:{
             type: mongoose.Schema.ObjectId,
             ref: 'User',
             required: [true, 'Please Provide Patient Id']
@@ -21,7 +21,7 @@ const ReservationSchema = new mongoose.Schema(
         },
         rate:{
             type: Number,
-            default: 5,
+            default: 0,
         }
     },
     {

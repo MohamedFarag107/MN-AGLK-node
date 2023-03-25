@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler')
 const ReservationModel = require("../models/reservationModel");
+const UserModel = require("../models/userModel");
 const ApiError = require("../utils/apiError");
 
 
@@ -24,7 +25,7 @@ exports.getAllReservations = asyncHandler( async(req,res)=>{
 exports.getOneReservation = asyncHandler( async(req,res,next)=>{
     const reservation =await ReservationModel.findById(req.params.id);
     if(!reservation){
-        return next(new ApiError(`Not Found Any Reservation For This Id ${id}`, 404));
+        return next(new ApiError(`Not Found Any Reservation For This Id ${req.params.id}`, 404));
     }
     res.status(200).json({data: reservation});
 });
@@ -35,8 +36,45 @@ exports.getOneReservation = asyncHandler( async(req,res,next)=>{
 // @route   POST   /api/v1/reservations
 // @access  Private
 exports.createReservation =asyncHandler( async (req,res)=>{
-    const reservation = await ReservationModel.create(req.body);
-    res.status(201).json({data: reservation});
+    const {therapistId, patientId, date} = req.body;
+    // check if  numberOfReservations equal 0
+    const therapistNumberOfReservations = await UserModel.findById(therapistId);
+    if(therapistNumberOfReservations.numberOfReservations === 0){ 
+        return next(new ApiError(`therapist not have any Reservations empty ${therapistId}`, 404));
+    }
+    const reservation = await ReservationModel.create({therapistId, patientId, date});
+    const patient = await UserModel.findOneAndUpdate(
+        req.body.patientId,
+        {
+            $addToSet: {reservations: reservation._id},
+        },
+        {
+            new: true
+        }
+    )
+    console.log(patient);
+    const therapist = await UserModel.findOneAndUpdate(
+        req.body.therapistId,
+        {
+            $addToSet: {reservations: reservation._id},
+        },
+        {
+            new: true
+        }
+    )
+    const NumberOfReservationsAfterDecrement = await UserModel.findOneAndUpdate
+    (
+        req.body.therapistId,
+        {
+            $inc: {numberOfReservations: -1}
+        },
+        {
+            new: true
+        }
+    )
+    console.log(NumberOfReservationsAfterDecrement);
+    console.log(therapist);
+    res.status(201).json({status: 'Success', message: 'Reservation Added Successfully.', data: reservation});
 });
 
 
@@ -46,14 +84,46 @@ exports.createReservation =asyncHandler( async (req,res)=>{
 // @route   PUT    /api/v1/reservations/:id
 // @access  Private
 exports.updateReservation = asyncHandler( async(req,res,next)=>{
+    console.log(req.params.id)
     const reservation = await ReservationModel.findOneAndUpdate(
-        req.params.id,
-        req.body,
-        {new: true}
+            {
+                _id: req.params.id
+            },
+            {
+                status : true,
+                rate: req.body.rate,
+            },
+            {new: true}
     );
     if(!reservation){
-        return next(new ApiError(`Not Found Any Reservation For This Id ${id}`, 404));
+        return next(new ApiError(`Not Found Any Reservation For This Id  Or rated Before ${id}`, 404));
     }
+    const totalRate = await ReservationModel.aggregate([   
+        {
+            $match: {therapistId: reservation.therapistId}
+        },
+        {
+
+            $group: {
+
+                _id: "$therapistId",
+                totalRate: {$sum: "$rate"},
+                count: {$sum: 1}
+            }
+        }
+    ]);
+    const therapist = await UserModel.findOneAndUpdate( 
+        {
+            _id: reservation.therapistId
+        },
+        {
+            rating: totalRate[0].totalRate / totalRate[0].count
+        },
+        {
+            new: true
+        }
+    )
+
     res.status(200).json({data: reservation});
 });
 

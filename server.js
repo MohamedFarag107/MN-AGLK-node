@@ -2,6 +2,7 @@ const path = require('path');
 const express = require("express");
 const dotenv = require('dotenv');
 const morgan = require("morgan");
+const cors = require('cors');
 dotenv.config({path: 'config.env'});
 
 const dbConnection = require("./config/database");
@@ -22,7 +23,9 @@ const app = express();
 // Connect To DataBase
 dbConnection();
 
-
+// Enable All Domain To Access The API
+app.use(cors());
+app.options('*', cors());
 
 // Middleware
 app.use(express.json());

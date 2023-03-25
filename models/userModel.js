@@ -24,7 +24,10 @@ const userSchema = new mongoose.Schema(
             enum: ['admin', 'patient','therapist'],
             default: 'patient',
         },
-        profileImage: String,
+        profileImage: {
+            type: String,
+            default: '',
+        },
         reservations:[
             {
                 type: mongoose.Schema.ObjectId,
@@ -33,12 +36,19 @@ const userSchema = new mongoose.Schema(
         ],
         numberOfReservations: {
             type: Number,
+            default: 0,
         },
         price:{
             type: Number,
+            default: 0,
         },
         rating:{
             type: Number,
+            default: 0,
+        },
+        specialization:{
+            type: String,
+            default: '',
         },
         // id, id, date
         //Password Reset Fields
