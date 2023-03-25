@@ -1,46 +1,33 @@
 const asyncHandler = require('express-async-handler')
 const BookModel = require("../models/bookModel");
 const ApiError = require("../utils/apiError");
-const {uploadSingleImage} = require('../middleware/uploadImageMiddleWare');
+const {uploadForBook} = require('../middleware/uploadImageMiddleWare');
 const sharp = require('sharp');
 const { v4: uuidv4 } = require('uuid');
+const multer  = require('multer')
 
 // @desc    Upload Image
-exports.uploadBookImage = uploadSingleImage('bookImage');
-// exports.uploadBookFile = uploadSingleImage('bookFile');
 
-exports.resizeBookImage = asyncHandler(async (req,res,next)=>{
-    const bookImageFileName = `book-${uuidv4()}-${Date.now()}-cover.jpeg`;
-        console.log(`user-${uuidv4()}-${Date.now()}.jpeg`);
-    if(req.file){
-        await sharp(req.file.buffer)
-        .resize(600, 600)
-        .toFormat('jpeg')
-        .jpeg({ quality: 90})
-        .toFile(`uploads/BooksImage/${bookImageFileName}`);
 
-        // Save Image To DataBase
-        req.body.bookImage = bookImageFileName;
-    }
+// This is the middleware function that will be called when the user uploads image and pdf for the book
 
+exports.uploadBookData = uploadForBook.fields(
+    [
+        { name: 'bookImage', maxCount: 1 }, 
+        { name: 'bookFile', maxCount: 1 }
+    ]
+    ); 
+
+exports.saveBookData = (req, res, next)=> {
+    const bookImageName = `book-${Date.now()}-cover.jpeg`;
+    const bookFileName = `book-${Date.now()}-file.pdf`;
+    req.body.bookImage = bookImageName;
+    req.body.bookFile = bookFileName;
+    console.log(bookImageName);
+    console.log(bookFileName);
+    console.log(req.files.bookImage[0].mimetype);
     next();
-});
-
-// exports.resizeBookFile = asyncHandler(async (req,res,next)=>{
-//     const bookFileName = `book-${uuidv4()}-${Date.now()}-file.pdf`;
-//     console.log(`user-${uuidv4()}-${Date.now()}.jpeg`);
-//     if(req.file){
-//         await sharp(req.file.buffer)
-//         .toFile(`uploads/BooksFile/${bookFileName}`);
-
-//         // Save Image To DataBase
-//         req.body.bookFile = bookFileName;
-//     }
-
-//     next();
-// });
-
-
+};
 
 
 // @desc    Get list of Books

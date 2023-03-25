@@ -2,34 +2,25 @@ const sharp = require('sharp');
 const { v4: uuidv4 } = require('uuid');
 const asyncHandler = require('express-async-handler');
 const bcrypt = require('bcrypt')
+const multer  = require('multer')
 
 const ApiError = require('../utils/apiError');
 const UserModel = require('../models/userModel');
 const createToken = require('../utils/createToken');
-const {uploadSingleImage} = require('../middleware/uploadImageMiddleWare');
+const {uploadForUser} = require('../middleware/uploadImageMiddleWare');
+
+// This middleware function will be called when the user uploads image for the user
 
 
-// @desc    Upload Image
-exports.uploadUserImage = uploadSingleImage('profileImage');
-
+exports.uploadUserImage = uploadForUser.single("profileImage"); 
 
 // @desc    Image Processing
-exports.resizeImage = asyncHandler(async (req,res,next)=>{
-    const filename = `user-${uuidv4()}-${Date.now()}.jpeg`;
-    console.log(`user-${uuidv4()}-${Date.now()}.jpeg`);
-    if(req.file){
-        await sharp(req.file.buffer)
-        .resize(600, 600)
-        .toFormat('jpeg')
-        .jpeg({ quality: 90})
-        .toFile(`uploads/users/${filename}`);
-
-        // Save Image To DataBase
-        req.body.profileImage = filename;
-    }
-
+exports.resizeUserImageAndSave =  (req,res,next)=>{
+    const userImageName = `user-${Date.now()}.jpeg`;
+    req.body.profileImage = userImageName;
+    console.log(userImageName);
     next();
-});
+};
 
 
 // @desc     Get List Of Users
@@ -41,6 +32,16 @@ exports.getUsers = asyncHandler( async(req,res)=>{
     const skip = (page - 1) * limit;
     const users = await UserModel.find({}).skip(skip).limit(limit);
     res.status(200).json({results: users.length, page, data: users});
+});
+
+
+
+// @desc    get all therapist
+// @route   GET /api/v1/users/getAllTherapist
+// @access  public
+exports.getAllTherapist = asyncHandler(async (req, res, next) => {
+    const therapist = await UserModel.find({ type: "therapist" });
+    res.status(200).json({ data: therapist });
 });
 
 

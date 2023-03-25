@@ -1,25 +1,31 @@
 const multer = require('multer');
 const ApiError = require('../utils/apiError');
 
-
-
-const multerObject = ()=>{
-    const multerStorage = multer.memoryStorage();
-
-    const multerFilter = function(req,file,cb){
-        if(file.mimetype.startsWith('image')){
-            cb(null, true);
+// middleware function to check for uploaded file and image for the book
+const storageBook = multer.diskStorage({
+    destination: function (req, file, cb) {
+        if (file.fieldname === 'bookImage' && file.mimetype === 'image/jpeg') {
+            cb(null, 'uploads/BooksImage/');
+        }else if (file.fieldname === 'bookFile' && file.mimetype === 'application/pdf') {
+            cb(null, 'uploads/BooksFile/');
+        }else {
+            cb({ message: 'Unsupported file format' }, false);
         }
-        else{
-            cb(new ApiError("Only Images Allowed", 400), false);
-        }
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
     }
+});
 
-    const upload = multer({storage: multerStorage, fileFilter: multerFilter });
-    return upload;
-}
-
+exports.uploadForBook = multer({ storage: storageBook });
 
 
-exports.uploadSingleImage = (fieldName)=>
-    multerObject().single(fieldName);
+const storageUser = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/users/')
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname)
+    }
+});
+exports.uploadForUser = multer({ storage: storageUser });

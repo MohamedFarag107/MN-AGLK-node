@@ -9,21 +9,19 @@ const {
     createBook,
     updateBook,
     deleteBook,
-    uploadBookImage,
-    uploadBookFile,
-    resizeBookImage,
-    resizeBookFile,
+    uploadBookData,
+    saveBookData,
 } = require('../services/BookServices');
 
 
 
 router.route('/')
     .get(getAllBooks)
-    .post(uploadBookImage, resizeBookImage , createBook);
+    .post(uploadBookData, saveBookData , createBook);
 
 router.route('/:id')
     .get(getOneBook)
-    .put(uploadBookImage, resizeBookImage , updateBook)
+    .put(uploadBookData, saveBookData , updateBook)
     .delete(deleteBook);
 
 module.exports = router;
