@@ -52,11 +52,13 @@ exports.protect = asyncHandler(async(req, res, next) => {
 // @route    POST   /api/v1/Auths/signup
 // @access   Public
 exports.Singup = asyncHandler(async (req,res,next)=>{
+    const type = req.body.type === "therapist" ? "therapist" : "patient";
     // 1) Create User
     const user = await userModel.create({
         name: req.body.name,
         email: req.body.email,
         password: req.body.password,
+        type,
     });
 
     // 2) Generate Token

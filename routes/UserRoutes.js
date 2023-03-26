@@ -11,14 +11,14 @@ const {
     updateLoggedUserData,
     deleteLoggedUserData,
     uploadUserImage,
-    resizeUserImageAndSave,
+    // resizeUserImageAndSave,
 } = require('../services/UserServices');
 
 const {protect } = require('../services/AuthServices');
 
 router.get('/getMe',protect, getLoggedUserData, getUser )
 router.put('/changeMyPassword',protect, updateLoggedUserPassword);
-router.put('/updateMe',protect, uploadUserImage,resizeUserImageAndSave, updateLoggedUserData);
+router.put('/updateMe',protect, uploadUserImage, updateLoggedUserData);
 router.delete('/deleteMe',protect, deleteLoggedUserData);
 
 router.put('/changePassword/:id', updateUserPassword);

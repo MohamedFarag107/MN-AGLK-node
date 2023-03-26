@@ -15,12 +15,11 @@ const {uploadForUser} = require('../middleware/uploadImageMiddleWare');
 exports.uploadUserImage = uploadForUser.single("profileImage"); 
 
 // @desc    Image Processing
-exports.resizeUserImageAndSave =  (req,res,next)=>{
-    const userImageName = `user-${Date.now()}.jpeg`;
-    req.body.profileImage = userImageName;
-    console.log(userImageName);
-    next();
-};
+// exports.resizeUserImageAndSave =  (req,res,next)=>{
+//     const userImageName = `user-${Date.now()}.jpeg`;
+//     req.body.profileImage = userImageName;
+//     next();
+// };
 
 
 // @desc     Get List Of Users
