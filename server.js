@@ -29,7 +29,7 @@ app.options("*", cors());
 // Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "uploads")));
-app.use("/", express.static("public"));
+// app.use("/", express.static("public"));
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
@@ -43,13 +43,9 @@ app.use("/api/v1/books", BookServices);
 app.use("/api/v1/users", UserRoutes);
 app.use("/api/v1/reservations", ReservationRoutes);
 
-app.get("*", (req, res) => {
-  res.sendFile(__dirname + "/public/index.html");
+app.all('*', (req, res,next)=>{
+    next(new ApiError(`Can't Find This Route ${req.originalUrl}`, 400));
 });
-
-// app.all('*', (req, res,next)=>{
-//     next(new ApiError(`Can't Find This Route ${req.originalUrl}`, 400));
-// });
 
 // Global Error Handling MiddleWare
 app.use(globalErrorMiddleWare);
